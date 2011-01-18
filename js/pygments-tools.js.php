@@ -47,9 +47,15 @@ if (!function_exists('add_action')) {
     })
 
     // about
-		var dialog = $("#wppygments-about-dialog");
-    dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin' });
 		$('.about').click(function(){
+		  var dialog = $('#wppygments-about-dialog');
+		  if (!dialog.size()) {
+        dialog = $('<div id="wppygments-about-dialog">' +
+            '<p>WpPygments is a Wordpress plugin that colorizes your code snippets using the web-service created around a popular Pygments library.</p>' +
+            '<p>Both the service and the plugin are developed by Eugene Mirotin. See <a href="http://google.com" target="_blank">here</a> how to add it to your blog.</p>' +
+          '</div>');
+        dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin' });
+      }
 			dialog.dialog('open');
 			return false;
 		})
