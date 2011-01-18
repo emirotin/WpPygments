@@ -138,7 +138,7 @@ if (isset($wp_pygments)) {
   //add_filter('pre_comment_content', array(&$wp_pygments, 'preSaveComment'), 1); 
     
   add_filter('the_content', array(&$wp_pygments, 'preShowContent'), 1); 
-  //add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);
+  add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);
      
 }
 
