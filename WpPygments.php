@@ -109,6 +109,8 @@ if (!class_exists("WpPygments")) {
     }
 
     function preShowComment($comment = '') {
+      if(is_admin())
+        return $comment;
       return $this->_processContent($comment, true, false);
     }
 
@@ -117,7 +119,7 @@ if (!class_exists("WpPygments")) {
     }
 
     function preSaveComment($comment = '') {
-      return $this->_processContent($content, false);
+      return $this->_processContent($comment, false);
     }
 
   } //End Class WpPygments
@@ -134,8 +136,8 @@ if (isset($wp_pygments)) {
   add_action('init',  array(&$wp_pygments, 'init'));
   
   //Filters
-  //add_filter('content_filtered_save_pre', array(&$wp_pygments, 'preSaveContent'), 1); 
-  //add_filter('pre_comment_content', array(&$wp_pygments, 'preSaveComment'), 1); 
+  add_filter('content_filtered_save_pre', array(&$wp_pygments, 'preSaveContent'), 1); 
+  add_filter('pre_comment_content', array(&$wp_pygments, 'preSaveComment'), 1); 
     
   add_filter('the_content', array(&$wp_pygments, 'preShowContent'), 1); 
   add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);
