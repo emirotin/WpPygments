@@ -40,7 +40,6 @@ function request_http($url, $params = null, $verb = 'GET')
 
   // Save the header
   $result['header'] = $http_response_header;
-  echo $http_response_header;
 
   // Get the *last* HTTP status code
   $nLines = count( $http_response_header );
