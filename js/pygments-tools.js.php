@@ -3,7 +3,6 @@ if (!function_exists('add_action')) {
   require_once('../../../../wp-config.php');
 }
 ?>
-
 (function($) {
 	$(function(){
     // toggle raw/ highlighted views	
