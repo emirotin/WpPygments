@@ -20,7 +20,7 @@ function _callPygmentizeService($url, $code, $lang = '') {
 }
 
 global $WpPygments_db_version;
-$WpPygments_db_version = "1.0";
+$WpPygments_db_version = "1.1";
 
 function WpPygments_table_name(){
   global $wpdb;
@@ -42,7 +42,8 @@ function WpPygments_install_db() {
       id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
       lang VARCHAR(55) NOT NULL,
       code_hash VARCHAR(40) NOT NULL,
-      pygments text NOT NULL
+      pygments text NOT NULL,
+      last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );";
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
@@ -92,9 +93,12 @@ if (!class_exists("WpPygments")) {
       $hash = sha1($code);
       $table_name = WpPygments_table_name();
       global $wpdb;
-      $res = $wpdb->get_row($wpdb->prepare('SELECT pygments from ' . $table_name . ' WHERE lang=%s AND code_hash=%s', $lang, $hash));
-      if ($res !== null)
+      $res = $wpdb->get_row($wpdb->prepare('SELECT id, pygments from ' . $table_name . ' WHERE lang=%s AND code_hash=%s', $lang, $hash));
+      if ($res !== null) {
+        // force timestamp update
+        $wpdb->get_var('UPDATE ' . $table_name . ' SET `last_accessed` = NULL WHERE `id` = ' . $res->id);
         $res = $res->pygments;
+      }
       else {
         $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
         $wpdb->insert($table_name, array('lang' => $lang, 'code_hash' => $hash, 'pygments' => $res));  
