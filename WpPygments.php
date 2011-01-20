@@ -2,7 +2,7 @@
 /* 
 Plugin Name: WpPygments
 Plugin URI: http://blog.mirotin.net
-Version: 0.1.  
+Version: 0.3  
 Author: <a href="http://blog.mirotin.net">Eugene Mirotin</a> 
 Description: Colorizes code in WP posts with Pygments.
 */
@@ -19,6 +19,36 @@ function _callPygmentizeService($url, $code, $lang = '') {
   return false;
 }
 
+global $WpPygments_db_version;
+$WpPygments_db_version = "1.0";
+
+function WpPygments_table_name(){
+  global $wpdb;
+  return $wpdb->prefix . "pygments_cache";
+}
+
+function WpPygments_install_db() {
+  global $wpdb;
+  global $WpPygments_db_version;  
+  
+  $table_name = WpPygments_table_name();
+  if($wpdb->get_var("show tables like '$table_name'") != $table_name)
+    add_option("WpPygments_db_version", "0");
+  $installed_ver = get_option( "WpPygments_db_version" );
+
+  if ($installed_ver != $WpPygments_db_version)  
+  {      
+    $sql = "CREATE TABLE " . $table_name . " (
+      id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      lang VARCHAR(55) NOT NULL,
+      code_hash VARCHAR(40) NOT NULL,
+      pygments text NOT NULL
+    );";
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    update_option("WpPygments_db_version", $WpPygments_db_version);
+  }
+}
 
 if (!class_exists("WpPygments")) {
   class WpPygments {
@@ -37,6 +67,7 @@ if (!class_exists("WpPygments")) {
       wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
         array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.4');
     }
+   
     
     function processHeader() {
       $style_name = 'emacs';
@@ -57,7 +88,17 @@ if (!class_exists("WpPygments")) {
       $lang = str_replace('\"', '', $lang);
       
       $code = $el->text();
-      $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
+      
+      $hash = sha1($code);
+      $table_name = WpPygments_table_name();
+      global $wpdb;
+      $res = $wpdb->get_row($wpdb->prepare('SELECT pygments from ' . $table_name . ' WHERE lang=%s AND code_hash=%s', $lang, $hash));
+      if ($res !== null)
+        $res = $res->pygments;
+      else {
+        $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
+        $wpdb->insert($table_name, array('lang' => $lang, 'code_hash' => $hash, 'pygments' => $res));  
+      }
       return array('res' => $res, 'lang' => $lang);      
     }
 
@@ -114,12 +155,12 @@ if (!class_exists("WpPygments")) {
 
     /**
      * Based on http://www.coranac.com/2009/08/filter-juggling-and-comment-preview/
-     * Pre-encode HTML entities. Should come \e before wp_kses.
+     * Pre-encode HTML entities. Should come before wp_kses.
      */
     function filterDeEntity($content)
     {
         $content = preg_replace(
-            '#(<code.*?>)(.*?)(</code>)#msie',
+            '#(<pre><code.*?>)(.*?)(</code></pre>)#msie',
             '"\\1" . str_replace(
                 array("<", ">", "&"),
                 array("[|LT|]", "[|GT|]", "[|AMP|]"),
@@ -130,14 +171,14 @@ if (!class_exists("WpPygments")) {
         return $content;
     }
     /**
-     * Decode HTML entities. Should come \e after wp_kses.
+     * Decode HTML entities. Should come after wp_kses.
      */
     function filterReEntity($content)
     {
         if(strstr($content, "[|"))
         {
             $content = preg_replace(
-                '#(<code.*?>)(.*?)(</code>)#msie',
+                '#(<pre><code.*?>)(.*?)(</code></pre>)#msie',
                 '"\\1" . str_replace(
                     array("[|LT|]", "[|GT|]", "[|AMP|]"),
                     array("&lt;", "&gt;", "&amp;"),
@@ -159,6 +200,9 @@ if (class_exists("WpPygments")) {
 
 //Actions and Filters 
 if (isset($wp_pygments)) {
+  // Hooks
+  register_activation_hook(__FILE__,'WpPygments_install_db');
+  
   //Actions
   add_action('wp_head', array(&$wp_pygments, 'processHeader'), 1);
   add_action('init',  array(&$wp_pygments, 'init'));
