@@ -208,7 +208,7 @@ if (!class_exists("WpPygments")) {
     }
     
     function register_cron() {
-      wp_schedule_event(time(), 'hourly', 'clean_old_cache');
+      wp_schedule_event(time(), 'daily', 'clean_old_cache');
     }
     
     function unregister_cron() {
