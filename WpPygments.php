@@ -194,6 +194,26 @@ if (!class_exists("WpPygments")) {
         return $content;
     }
 
+    // clean obsolete cache records
+    function clean_old_cache() {      
+      $ttl = 60; $unit = 'SECOND'; // TODO: read from settings
+      $clear_old = true;
+      
+      if (!$clear_old)
+        return;
+        
+      global $wpdb;
+      $table_name = WpPygments_table_name();
+      $wpdb->get_var('DELETE FROM `' . $table_name . '` WHERE last_accessed < DATE_SUB(NOW() , INTERVAL ' . $ttl . ' ' . $unit . ')');
+    }
+    
+    function register_cron() {
+      wp_schedule_event(time(), 'hourly', 'clean_old_cache');
+    }
+    
+    function unregister_cron() {
+      wp_clear_scheduled_hook('clean_old_cache');
+    }
 
   } //End Class WpPygments
 }
@@ -206,6 +226,9 @@ if (class_exists("WpPygments")) {
 if (isset($wp_pygments)) {
   // Hooks
   register_activation_hook(__FILE__,'WpPygments_install_db');
+  register_activation_hook(__FILE__, array(&$wp_pygments, 'register_cron'));
+  add_action('clean_old_cache', array(&$wp_pygments, 'clean_old_cache'));
+  register_deactivation_hook(__FILE__, array(&$wp_pygments, 'unregister_cron')); 
   
   //Actions
   add_action('wp_head', array(&$wp_pygments, 'processHeader'), 1);
