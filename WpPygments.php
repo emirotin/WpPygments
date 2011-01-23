@@ -85,7 +85,9 @@ if (!class_exists("WpPygments")) {
    
     
     function processHeader() {
-      $style_name = 'emacs';
+      $options = get_option('WpPygments_options');
+      
+      $style_name = isset($options['pygments_style']) ? $options['pygments_style'] : 'default';
 
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/css/jquery-ui-1.8.8.custom.css" />' . "\n";
