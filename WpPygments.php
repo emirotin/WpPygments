@@ -264,6 +264,12 @@ if (!class_exists("WpPygments")) {
       $options['pygments_toolbar_show_raw'] = $input['pygments_toolbar_show_raw'] === 'on' ? 'on' : 'off';
       $options['pygments_toolbar_show_copy'] = $input['pygments_toolbar_show_copy'] === 'on' ? 'on' : 'off';
       $options['pygments_toolbar_show_print'] = $input['pygments_toolbar_show_print'] === 'on' ? 'on' : 'off';
+      
+      $cache = $input['pygments_cache_ttl'];
+      if (!in_array($cache, array_keys($this->cache_ttl)))
+        $cache = 'never clean';
+      $options['pygments_cache_ttl'] = $cache;
+      
       return $options;
     }
    
@@ -278,6 +284,10 @@ if (!class_exists("WpPygments")) {
       add_settings_field('pygments_toolbar_show_raw', 'Show Raw / Highlighted Switcher', array($this, 'toolbar_raw_option'), 'WpPygments', 'WpPygments_toolbar');
       add_settings_field('pygments_toolbar_show_copy', 'Show Copy Link', array($this, 'toolbar_copy_option'), 'WpPygments', 'WpPygments_toolbar');
       add_settings_field('pygments_toolbar_show_print', 'Show Print Link', array($this, 'toolbar_print_option'), 'WpPygments', 'WpPygments_toolbar');
+
+      add_settings_section('WpPygments_cache', 'Cache', array($this, 'options_cache_section_desc'), 'WpPygments');
+      add_settings_field('pygments_cache_ttl', 'Cache', array($this, 'cache_option'), 'WpPygments', 'WpPygments_cache');
+
     }
     
     function options_style_section_desc() {
@@ -285,10 +295,11 @@ if (!class_exists("WpPygments")) {
     }
     function style_option() {
       $options = get_option('WpPygments_options');
+      $current_style = isset($options['pygments_style']) ? $options['pygments_style'] : 'default';
       echo "<select id='pygments_style' name='WpPygments_options[pygments_style]'>";
       foreach ($this->styles as $style) {
         echo "<option value='{$style}'";
-        if ($style == $options['pygments_style'])
+        if ($style === $current_style)
           echo " selected='selected'";
         echo ">{$style}</option>"; 
       }
@@ -320,6 +331,21 @@ if (!class_exists("WpPygments")) {
       echo " />";
     }
 
+    function options_cache_section_desc() {
+      echo '<p>Set how long cached pygmentized code should be stored (since the last access time).';
+    }
+    function cache_option() {
+      $options = get_option('WpPygments_options');
+      $current_cache = isset($options['pygments_cache_ttl']) ? $options['pygments_cache_ttl'] : 'never clean';
+      echo "<select id='pygments_style' name='WpPygments_options[pygments_cache_ttl]'>";
+      foreach ($this->cache_ttl as $cache => $v) {
+        echo "<option value='{$cache}'";
+        if ($cache === $current_cache)
+          echo " selected='selected'";
+        echo ">{$cache}</option>"; 
+      }
+      echo "</select>";
+    }
 
   } //End Class WpPygments
 }
