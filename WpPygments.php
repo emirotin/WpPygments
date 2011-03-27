@@ -12,6 +12,10 @@ define("SERVICE_URL", 'http://pygmentizer.appspot.com/');
 require_once('php/phpQuery.php');
 require_once('php/request_http.php');
 
+/*
+ * Performs post to the pygmentize service
+ */
+ 
 function _callPygmentizeService($url, $code, $lang = '') {
   $res = request_http($url, array('lang' => $lang, 'code' => $code), 'POST');
   if ($res !== null && $res['status'] == '200')
@@ -19,6 +23,10 @@ function _callPygmentizeService($url, $code, $lang = '') {
   return false;
 }
 
+/*
+ * DB-related routines (needed for pygments cache)
+ */
+ 
 global $WpPygments_db_version;
 $WpPygments_db_version = "1.1";
 
@@ -73,29 +81,39 @@ if (!class_exists("WpPygments")) {
     }
     
     function init() {
+      // serving required JS
       wp_enqueue_script('jquery');
       wp_enqueue_script('jquery-ui-dialog');
-      wp_enqueue_script('wppygments.zeroclipboard', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/ZeroClipboard.js', 
+      wp_enqueue_script('wppygments.zeroclipboard', get_bloginfo('wpurl') . 
+        '/wp-content/plugins/WpPygments/js/ZeroClipboard.js', 
         array(), '1.0.7');
-      wp_enqueue_script('wppygments.printarea', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/jquery.PrintArea.js', 
+      wp_enqueue_script('wppygments.printarea', get_bloginfo('wpurl') . 
+        '/wp-content/plugins/WpPygments/js/jquery.PrintArea.js', 
         array('jquery'), '1.0.7');
-      wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
+      wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . 
+        '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
         array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.4');
     }
    
     
     function processHeader() {
+      // set required styles
       $options = get_option('WpPygments_options');      
       $style_name = isset($options['pygments_style']) ? $options['pygments_style'] : 'default';
-
+      // jQuery UI
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/css/jquery-ui-1.8.8.custom.css" />' . "\n";
+      // WpPygments common styles and style fixes
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/css/_common.css" />' . "\n";
+      // pygments chosen style
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/css/pygments/' . $style_name . '.css" />' . "\n";
     }
 
+    /*
+     * given a DOM element, etrieves lang and code, checks cache and, if necessary, calls the service
+     */
     static function _getPygmentizedCode($el) {
       $el = pq($el);
       $lang = $el->attr('lang');
@@ -108,7 +126,8 @@ if (!class_exists("WpPygments")) {
       $hash = sha1($code);
       $table_name = WpPygments_table_name();
       global $wpdb;
-      $res = $wpdb->get_row($wpdb->prepare('SELECT id, pygments from ' . $table_name . ' WHERE lang=%s AND code_hash=%s', $lang, $hash));
+      $res = $wpdb->get_row($wpdb->prepare('SELECT id, pygments from ' . $table_name . 
+        ' WHERE lang=%s AND code_hash=%s', $lang, $hash));
       if ($res !== null) {
         // force timestamp update
         $wpdb->get_var('UPDATE ' . $table_name . ' SET `last_accessed` = NULL WHERE `id` = ' . $res->id);
@@ -118,22 +137,29 @@ if (!class_exists("WpPygments")) {
         $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
         $wpdb->insert($table_name, array('lang' => $lang, 'code_hash' => $hash, 'pygments' => $res));  
       }
-      return array('res' => $res, 'lang' => $lang);      
+      return array('pygments' => $res, 'lang' => $lang);      
     }
 
+    /*
+     * given a DOM element, gets the pygmentized code 
+     * and adds the pygmentized code to the DOM (as well as toolbar)
+     */
     static function _processCodeNode($el) {
       $res = self::_getPygmentizedCode($el);
       
-      if ($res['res'] !== false) {
+      if ($res['pygments'] !== false) {
         $el = pq($el);
         $el->parent()->wrap('<div class="highlight-wrapper ' . $res['lang'] . '"></div>');
         $wrap = $el->parent()->parent();
         $el->parent()->addClass('raw');
         
         $options = get_option('WpPygments_options');
-        $show_raw = !isset($options['pygments_toolbar_show_raw']) || $options['pygments_toolbar_show_raw'] === 'on';
-        $show_copy = !isset($options['pygments_toolbar_show_copy']) || $options['pygments_toolbar_show_copy'] === 'on';
-        $show_print = !isset($options['pygments_toolbar_show_print']) || $options['pygments_toolbar_show_print'] === 'on';
+        $show_raw = !isset($options['pygments_toolbar_show_raw']) || 
+          $options['pygments_toolbar_show_raw'] === 'on';
+        $show_copy = !isset($options['pygments_toolbar_show_copy']) || 
+          $options['pygments_toolbar_show_copy'] === 'on';
+        $show_print = !isset($options['pygments_toolbar_show_print']) || 
+          $options['pygments_toolbar_show_print'] === 'on';
         
         
         $tools = '<div class="tools">';
@@ -148,10 +174,14 @@ if (!class_exists("WpPygments")) {
           '</div>';
         $wrap->prepend($tools);
         
-        $wrap->append('<div class="highlighted">' . $res['res'] . '</div>');
+        $wrap->append('<div class="highlighted">' . $res['pygments'] . '</div>');
       }
     }
 
+    /*
+     * given a DOM element, either pre-caches pygments, or adds the pygmentized code
+     * to the pre>code elements
+     */
     function _processContent($content = '', $alter_content = true) {
       $doc = phpQuery::newDocumentHTML($content);
 
@@ -166,20 +196,24 @@ if (!class_exists("WpPygments")) {
       return $doc->htmlOuter();
     }
     
+    /* called before the post content is shown */
     function preShowContent($content = '') {
       return $this->_processContent($content, true);
     }
 
+    /* called before the comment content is shown */
     function preShowComment($comment = '') {
       if (is_admin())
         return $comment;
       return $this->_processContent($comment, true);
     }
 
+    /* called before the post content is saved to the DB */
     function preSaveContent($content = '') {
       return $this->_processContent($content, false);
     }
 
+    /* called before the comment content is saved to the DB */
     function preSaveComment($comment = '') {
       return $this->_processContent($comment, false);
     }
@@ -233,12 +267,10 @@ if (!class_exists("WpPygments")) {
       global $wpdb;
       $table_name = WpPygments_table_name();
       $wpdb->get_var('DELETE FROM `' . $table_name . '` WHERE last_accessed < DATE_SUB(NOW() , INTERVAL ' . $cache_ttl . ')');
-    }
-    
+    }    
     function register_cron() {
       wp_schedule_event(time(), 'daily', 'clean_old_cache');
-    }
-    
+    }    
     function unregister_cron() {
       wp_clear_scheduled_hook('clean_old_cache');
     }
@@ -289,21 +321,30 @@ if (!class_exists("WpPygments")) {
     function admin_init() {
       register_setting('WpPygments_options', 'WpPygments_options', array($this, 'validate_options'));
 
-      add_settings_section('WpPygments_style', 'Style', array($this, 'options_style_section_desc'), 'WpPygments');
-      add_settings_field('pygments_style', 'Style', array($this, 'style_option'), 'WpPygments', 'WpPygments_style');
+      add_settings_section('WpPygments_style', 'Style', 
+        array($this, 'options_style_section_desc'), 'WpPygments');
+      add_settings_field('pygments_style', 'Style', 
+        array($this, 'style_option'), 'WpPygments', 'WpPygments_style');
 
-      add_settings_section('WpPygments_toolbar', 'Toolbar', array($this, 'options_toolbar_section_desc'), 'WpPygments');
-      add_settings_field('pygments_toolbar_show_raw', 'Show Raw / Highlighted Switcher', array($this, 'toolbar_raw_option'), 'WpPygments', 'WpPygments_toolbar');
-      add_settings_field('pygments_toolbar_show_copy', 'Show Copy Link', array($this, 'toolbar_copy_option'), 'WpPygments', 'WpPygments_toolbar');
-      add_settings_field('pygments_toolbar_show_print', 'Show Print Link', array($this, 'toolbar_print_option'), 'WpPygments', 'WpPygments_toolbar');
+      add_settings_section('WpPygments_toolbar', 'Toolbar', 
+        array($this, 'options_toolbar_section_desc'), 'WpPygments');
+      add_settings_field('pygments_toolbar_show_raw', 'Show Raw / Highlighted Switcher', 
+        array($this, 'toolbar_raw_option'), 'WpPygments', 'WpPygments_toolbar');
+      add_settings_field('pygments_toolbar_show_copy', 'Show Copy Link', 
+        array($this, 'toolbar_copy_option'), 'WpPygments', 'WpPygments_toolbar');
+      add_settings_field('pygments_toolbar_show_print', 'Show Print Link', 
+        array($this, 'toolbar_print_option'), 'WpPygments', 'WpPygments_toolbar');
 
-      add_settings_section('WpPygments_cache', 'Cache', array($this, 'options_cache_section_desc'), 'WpPygments');
-      add_settings_field('pygments_cache_ttl', 'Cache', array($this, 'cache_option'), 'WpPygments', 'WpPygments_cache');
+      add_settings_section('WpPygments_cache', 'Cache', 
+        array($this, 'options_cache_section_desc'), 'WpPygments');
+      add_settings_field('pygments_cache_ttl', 'Cache', 
+        
+        array($this, 'cache_option'), 'WpPygments', 'WpPygments_cache');
 
     }
     
     function options_style_section_desc() {
-      echo '<p>Choose on of the styles provided by the <a href="http://pygments.org">Pygments</a> library.';
+      echo '<p>Choose one of the styles provided by the <a href="http://pygments.org">Pygments</a> library.';
     }
     function style_option() {
       $options = get_option('WpPygments_options');
