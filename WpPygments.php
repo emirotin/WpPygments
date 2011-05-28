@@ -175,6 +175,7 @@ if (!class_exists("WpPygments")) {
           $tools .= '<a href="#" class="print">print</a>';
         }
         $tools .= '<a href="#" class="about">?</a>'.
+          '<div class="clear"></div>' .
           '</div>';
         $wrap->prepend($tools);
         

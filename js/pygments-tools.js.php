@@ -8,6 +8,9 @@ var ZeroClipboard, jQuery;
 
 (function($) {
 	$(function(){
+	  $('.tools .show-raw').show();
+	  $('.tools .show-colored').hide();
+	  
     // toggle raw/ highlighted views	
 	  $('.highlighted').css('display', 'block');
 		$('.tools .show-raw, .tools .show-colored').click(function(){
@@ -23,21 +26,24 @@ var ZeroClipboard, jQuery;
 		});
     
 		// clipboard
-    var zeroUrl =  "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf",
+    var zeroUrl = "ZeroClipboard10.swf",
         i = 0;
     ZeroClipboard.setMoviePath(zeroUrl);
     $('.to-clipboard').each(function(){
-      var el = $(this);
-      var id = "to-clipboard-" + i;
+      var el = $(this),
+          id = "WpPygments-to-clipboard-" + i,
+          parent_id = "WpPygments-tools-" + i;
+          code = el.parent().parent().find('.raw code'),
+          clip = new ZeroClipboard.Client();
       el.attr("id", id);
+      el.parent().attr("id", parent_id);
       i++;
-      var code = el.parent().parent().find('.raw code');
-      var clip = new ZeroClipboard.Client();
       clip.setText('');
+      clip.setHandCursor(true);
       clip.addEventListener('mouseDown', function(){
         clip.setText(code.text());
       });
-      clip.glue(id);
+      clip.glue(id, parent_id);
     });
     
 		// print

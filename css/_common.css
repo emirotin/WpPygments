@@ -1,3 +1,22 @@
+.tools {
+  padding: 1px 8px;
+  text-align: right;
+  position: relative;
+} 
+
+.tools a {
+  font-size: 12px;
+  text-decoration: none;
+  margin: 0 10px;
+  color: inherit;
+  display: block;
+  float: left;
+}
+
+.clear {
+  clear:  both;
+}
+
 .highlight-wrapper {
   padding-bottom: 24px;
 }  
@@ -23,23 +42,6 @@
 }
 
 .raw {
-  display: none;
-}
-
-.tools {
-  padding: 1px 8px;
-  text-align: right;
-} 
-
-.tools a {
-  font-size: 12px;
-  text-decoration: none;
-  margin: 0 10px;
-  color: inherit;
-}
-
-
-.show-colored {
   display: none;
 }
 
