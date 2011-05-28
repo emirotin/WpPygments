@@ -3,26 +3,29 @@ if (!function_exists('add_action')) {
   require_once('../../../../wp-config.php');
 }
 ?>
+
+var ZeroClipboard, jQuery;
+
 (function($) {
 	$(function(){
     // toggle raw/ highlighted views	
 	  $('.highlighted').css('display', 'block');
 		$('.tools .show-raw, .tools .show-colored').click(function(){
-			var el = $(this);
-			var tools = el.parent();
-			var wrap = tools.parent();
+			var el = $(this),
+			    tools = el.parent(),
+			    wrap = tools.parent();
 			wrap.children('.highlighted').slideToggle();
       wrap.children('.raw').slideToggle();
 			tools.children('.show-colored').toggle();
       tools.children('.show-raw').toggle();
 			
 			return false;
-		})
+		});
     
 		// clipboard
-    var zeroUrl =  "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf";
+    var zeroUrl =  "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf",
+        i = 0;
     ZeroClipboard.setMoviePath(zeroUrl);
-    var i = 0;
     $('.to-clipboard').each(function(){
       var el = $(this);
       var id = "to-clipboard-" + i;
@@ -35,15 +38,15 @@ if (!function_exists('add_action')) {
         clip.setText(code.text());
       });
       clip.glue(id);
-    })
+    });
     
 		// print
     $('.print').click(function(){
-      var el = $(this);
-      var code = el.parent().parent().find('.highlight');
+      var el = $(this),
+          code = el.parent().parent().find('.highlight');
 			code.printArea();
 			return false;
-    })
+    });
 
     // about
 		$('.about').click(function(){
@@ -57,6 +60,6 @@ if (!function_exists('add_action')) {
       }
 			dialog.dialog('open');
 			return false;
-		})
-	})
-})(jQuery)
+		});
+	});
+}(jQuery));
