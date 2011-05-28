@@ -18,8 +18,9 @@ require_once('php/request_http.php');
  
 function _callPygmentizeService($url, $code, $lang = '') {
   $res = request_http($url, array('lang' => $lang, 'code' => $code), 'POST');
-  if ($res !== null && $res['status'] == '200')
+  if ($res !== null && $res['status'] == '200') {
     return $res['content'];
+  }
   return false;
 }
 
@@ -44,8 +45,7 @@ function WpPygments_install_db() {
     add_option("WpPygments_db_version", "0");
   $installed_ver = get_option( "WpPygments_db_version" );
 
-  if ($installed_ver != $WpPygments_db_version)  
-  {      
+  if ($installed_ver != $WpPygments_db_version) {      
     $sql = "CREATE TABLE " . $table_name . " (
       id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
       lang VARCHAR(55) NOT NULL,
@@ -117,8 +117,9 @@ if (!class_exists("WpPygments")) {
     static function _getPygmentizedCode($el) {
       $el = pq($el);
       $lang = $el->attr('lang');
-      if ($lang === null)
+      if ($lang === null) {
         $lang = '';
+      }
       $lang = str_replace('\"', '', $lang);
       
       $code = $el->text();
@@ -163,13 +164,16 @@ if (!class_exists("WpPygments")) {
         
         
         $tools = '<div class="tools">';
-        if ($show_raw)
+        if ($show_raw) {
           $tools .= '<a href="#" class="show-raw">raw</a>' .
                     '<a href="#" class="show-colored">highlighted</a>';
-        if ($show_copy)
+        }
+        if ($show_copy) {
           $tools .= '<a href="#" class="to-clipboard">copy</a>';
-        if ($show_print)
+        }
+        if ($show_print) {
           $tools .= '<a href="#" class="print">print</a>';
+        }
         $tools .= '<a href="#" class="about">?</a>'.
           '</div>';
         $wrap->prepend($tools);
@@ -203,8 +207,9 @@ if (!class_exists("WpPygments")) {
 
     /* called before the comment content is shown */
     function preShowComment($comment = '') {
-      if (is_admin())
+      if (is_admin()) {
         return $comment;
+      }
       return $this->_processContent($comment, true);
     }
 
@@ -222,8 +227,7 @@ if (!class_exists("WpPygments")) {
      * Based on http://www.coranac.com/2009/08/filter-juggling-and-comment-preview/
      * Pre-encode HTML entities. Should come before wp_kses.
      */
-    function filterDeEntity($content)
-    {
+    function filterDeEntity($content) {
         $content = preg_replace(
             '#(<pre><code.*?>)(.*?)(</code></pre>)#msie',
             '"\\1" . str_replace(
@@ -238,10 +242,8 @@ if (!class_exists("WpPygments")) {
     /**
      * Decode HTML entities. Should come after wp_kses.
      */
-    function filterReEntity($content)
-    {
-        if(strstr($content, "[|"))
-        {
+    function filterReEntity($content) {
+        if(strstr($content, "[|")) {
             $content = preg_replace(
                 '#(<pre><code.*?>)(.*?)(</code></pre>)#msie',
                 '"\\1" . str_replace(
@@ -260,8 +262,9 @@ if (!class_exists("WpPygments")) {
      */
     function clean_old_cache() {
       $options = get_option('WpPygments_options');
-      if (!isset($options['pygments_cache_ttl']))
+      if (!isset($options['pygments_cache_ttl'])) {
         return;
+      }
       $cache_ttl = $options['pygments_cache_ttl'];
                  
       global $wpdb;
@@ -283,26 +286,27 @@ if (!class_exists("WpPygments")) {
     }
 
     function create_options_page() {
-    ?>
-    <div class="wrap">
-    <h2>WpPygments Settings</h2>
-    <form action="options.php" method="post">
-    <?php settings_fields('WpPygments_options'); ?>
-    <?php do_settings_sections('WpPygments'); ?>
-    <p class="submit">
-      <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
-    </p>
-    </form>
-    </div>
-    <?php
+      ?>
+      <div class="wrap">
+      <h2>WpPygments Settings</h2>
+      <form action="options.php" method="post">
+      <?php settings_fields('WpPygments_options'); ?>
+      <?php do_settings_sections('WpPygments'); ?>
+      <p class="submit">
+        <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
+      </p>
+      </form>
+      </div>
+      <?php
     }
     
     function validate_options($input) {
       $options = get_option('WpPygments_options');
       
       $style = $input['pygments_style'];
-      if (!in_array($style, $this->styles))
+      if (!in_array($style, $this->styles)) {
         $style = 'default';
+      }
       $options['pygments_style'] = $style;
       
       $options['pygments_toolbar_show_raw'] = $input['pygments_toolbar_show_raw'] === 'on' ? 'on' : 'off';
@@ -310,8 +314,9 @@ if (!class_exists("WpPygments")) {
       $options['pygments_toolbar_show_print'] = $input['pygments_toolbar_show_print'] === 'on' ? 'on' : 'off';
       
       $cache = $input['pygments_cache_ttl'];
-      if (!in_array($cache, array_keys($this->cache_ttl)))
+      if (!in_array($cache, array_keys($this->cache_ttl))) {
         $cache = 'never clean';
+      }
       $options['pygments_cache_ttl'] = $cache;
       
       return $options;
@@ -352,8 +357,9 @@ if (!class_exists("WpPygments")) {
       echo "<select id='pygments_style' name='WpPygments_options[pygments_style]'>";
       foreach ($this->styles as $style) {
         echo "<option value='{$style}'";
-        if ($style === $current_style)
+        if ($style === $current_style) {
           echo " selected='selected'";
+        }
         echo ">{$style}</option>"; 
       }
       echo "</select>";
@@ -365,22 +371,25 @@ if (!class_exists("WpPygments")) {
     function toolbar_raw_option() {
       $options = get_option('WpPygments_options');
       echo "<input id='pygments_toolbar_raw' name='WpPygments_options[pygments_toolbar_show_raw]' type='checkbox'";
-      if (!isset($options['pygments_toolbar_show_raw']) || $options['pygments_toolbar_show_raw'] === 'on')
+      if (!isset($options['pygments_toolbar_show_raw']) || $options['pygments_toolbar_show_raw'] === 'on') {
         echo " checked='checked'";
+      }
       echo " />";
     }
     function toolbar_copy_option() {
       $options = get_option('WpPygments_options');
       echo "<input id='pygments_toolbar_copy' name='WpPygments_options[pygments_toolbar_show_copy]' type='checkbox'";
-      if (!isset($options['pygments_toolbar_show_copy']) || $options['pygments_toolbar_show_copy'] === 'on')
+      if (!isset($options['pygments_toolbar_show_copy']) || $options['pygments_toolbar_show_copy'] === 'on') {
         echo " checked='checked'";
+      }
       echo " />";
     }
     function toolbar_print_option() {
       $options = get_option('WpPygments_options');
       echo "<input id='pygments_toolbar_print' name='WpPygments_options[pygments_toolbar_show_print]' type='checkbox'";
-      if (!isset($options['pygments_toolbar_show_print']) || $options['pygments_toolbar_show_print'] === 'on')
+      if (!isset($options['pygments_toolbar_show_print']) || $options['pygments_toolbar_show_print'] === 'on') {
         echo " checked='checked'";
+        }
       echo " />";
     }
 
@@ -393,8 +402,9 @@ if (!class_exists("WpPygments")) {
       echo "<select id='pygments_style' name='WpPygments_options[pygments_cache_ttl]'>";
       foreach ($this->cache_ttl as $cache => $v) {
         echo "<option value='{$cache}'";
-        if ($cache === $current_cache)
+        if ($cache === $current_cache) {
           echo " selected='selected'";
+        }
         echo ">{$cache}</option>"; 
       }
       echo "</select>";
