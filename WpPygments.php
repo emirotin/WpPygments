@@ -92,7 +92,7 @@ if (!class_exists("WpPygments")) {
         array('jquery'), '1.0.7');
       wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
-        array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.4');
+        array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.5');
     }
    
     
