@@ -78,7 +78,7 @@ var ZeroClipboard, jQuery;
             '<p>Read <a href="http://blog.mirotin.net/?page_id=49" target="_blank">here</a> for details.</p>' +
             '<p>Both the service and the plugin are developed by Eugene Mirotin.</p>' +
           '</div>');
-        dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin' });
+        dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin', width: 330 });
       }
 			dialog.dialog('open');
 			return false;

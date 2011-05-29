@@ -50,6 +50,10 @@
   display: none;
 }
 
-#about-dialog {
-  display: none;
+#wppygments-about-dialog p {
+  margin-bottom: 0.3em;
+}
+
+#wppygments-about-dialog a {
+  color: inherit;
 }
