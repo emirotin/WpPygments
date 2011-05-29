@@ -63,9 +63,9 @@ if (!class_exists("WpPygments")) {
   class WpPygments {
     function WpPygments() { //constructor
       $this->styles = array('autumn', 'borland', 'bw', 'colorful', 'default', 
-                                  'emacs', 'friendly', 'fruity', 'manni', 'monokai', 
-                                  'murphy', 'native', 'pastie', 'perldoc', 'tango',
-                                  'trac', 'vim', 'vs');
+                            'emacs', 'friendly', 'fruity', 'manni', 'monokai', 
+                            'murphy', 'native', 'pastie', 'perldoc', 'tango',
+                            'trac', 'vim', 'vs');
                                   
       $this->cache_ttl = array(
                                'never clean' => null,
@@ -92,7 +92,7 @@ if (!class_exists("WpPygments")) {
         array('jquery'), '1.0.7');
       wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . 
         '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
-        array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.5');
+        array('jquery', 'jquery-ui-dialog', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.5');
     }
    
     
@@ -112,7 +112,7 @@ if (!class_exists("WpPygments")) {
     }
 
     /*
-     * given a DOM element, etrieves lang and code, checks cache and, if necessary, calls the service
+     * given a DOM element, retrieves lang and code, checks cache and, if necessary, calls the service
      */
     static function _getPygmentizedCode($el) {
       $el = pq($el);
