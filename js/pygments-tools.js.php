@@ -62,6 +62,7 @@ var ZeroClipboard, jQuery;
 		  if (!dialog.size()) {
         dialog = $('<div id="wppygments-about-dialog">' +
             '<p>WpPygments is a Wordpress plugin that colorizes your code snippets using the web-service created around a popular Pygments library.</p>' +
+            '<p>Read <a href="http://blog.mirotin.net/?page_id=49" target="_blank">here</a> for details.</p>' +
             '<p>Both the service and the plugin are developed by Eugene Mirotin.</p>' +
           '</div>');
         dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin' });
