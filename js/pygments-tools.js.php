@@ -8,39 +8,52 @@ var ZeroClipboard, jQuery;
 
 (function($) {
 	$(function(){
-	  $('.tools .show-raw').show();
-	  $('.tools .show-colored').hide();
-	  
-    // toggle raw/ highlighted views	
-	  $('.highlighted').css('display', 'block');
-		$('.tools .show-raw, .tools .show-colored').click(function() {
-			var el = $(this),
-			    tools = el.parent().parent(),
-			    wrap = tools.parent();
-			wrap.children('.highlighted').slideToggle();
-      wrap.children('.raw').slideToggle();
-			tools.find('.show-colored').toggle();
-      tools.find('.show-raw').toggle();
-			return false;
-		});
-    
-		// clipboard
-    var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf",
-        i = 0;
+    var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf";
     ZeroClipboard.setMoviePath(zeroUrl);
-    $('.to-clipboard').each(function() {
-      var el = $(this),
-          code = el.parent().parent().parent().find('.raw code'),
-          clip = new ZeroClipboard.Client();
-      el.data("clip", clip);
-      i++;
+
+    function create_clip(el, copy) {
+      var clip = new ZeroClipboard.Client();
       clip.setText('');
       clip.setHandCursor(true);
-      clip.addEventListener('mouseDown', function(){
-        clip.setText(code.text());
+      clip.addEventListener('mouseDown', function() {
+        clip.setText(copy());
       });
-      clip.glue(this, this.parentNode);
+      clip.glue(el, el.parentNode);
+      $(el).data("clip", clip);    
+      return clip;
+    }
+    
+    function create_code_copy_clip(el) {
+      var dom_el = el[0],
+          code = el.parent().parent().parent().find('.raw code');
+      create_clip(dom_el, function() {return code.text()});
+    }
+    
+    $('.tools .show-raw').show();
+    $('.tools .show-colored').hide();
+
+		// clipboard
+    $('.to-clipboard').each(function() {
+      create_code_copy_clip($(this));
     });
+    
+    // toggle raw/ highlighted views  
+    $('.highlighted').css('display', 'block');
+    $('.tools .show-raw, .tools .show-colored').click(function() {
+      var el = $(this),
+          tools = el.parent().parent(),
+          wrap = tools.parent(),
+          to_clip = tools.find('.to-clipboard');
+      wrap.children('.highlighted').slideToggle();
+      wrap.children('.raw').slideToggle();
+      tools.find('.show-colored').toggle();
+      tools.find('.show-raw').toggle();
+      to_clip.data("clip").destroy();
+      create_code_copy_clip(to_clip);
+      return false;
+    });
+    
+
     
     $(window).resize(function() {
       $('.to-clipboard').each(function() {
