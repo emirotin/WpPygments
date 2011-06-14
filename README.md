@@ -13,7 +13,7 @@ Pygmentizer code: http://github.com/emirotin/pygmentizer/
 
 Download
 ========
-https://github.com/downloads/emirotin/WpPygments/WpPygments.zip
+https://github.com/emirotin/WpPygments/zipball/release
 
 Installation
 ============
