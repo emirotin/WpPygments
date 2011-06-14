@@ -161,7 +161,7 @@ if (!class_exists("WpPygments")) {
       }
 
       $doc->find('pre>code:not(.nocolor)')->each(array('WpPygments', '_processCodeNode'));
-      // marking line number as literals for coloring
+      // marking line numbers as literals for coloring
       $doc->find('.linenodiv pre')->addClass('nl');
       return $doc->htmlOuter();
     }
@@ -224,16 +224,15 @@ if (!class_exists("WpPygments")) {
     /*
      *  clean obsolete cache records
      */
-    function clean_old_cache() {      
-      $ttl = 60; $unit = 'SECOND'; // TODO: read from settings
-      $clear_old = true;
-      
-      if (!$clear_old)
+    function clean_old_cache() {
+      $options = get_option('WpPygments_options');
+      if (!isset($options['pygments_cache_ttl']))
         return;
-        
+      $cache_ttl = $options['pygments_cache_ttl'];
+                 
       global $wpdb;
       $table_name = WpPygments_table_name();
-      $wpdb->get_var('DELETE FROM `' . $table_name . '` WHERE last_accessed < DATE_SUB(NOW() , INTERVAL ' . $ttl . ' ' . $unit . ')');
+      $wpdb->get_var('DELETE FROM `' . $table_name . '` WHERE last_accessed < DATE_SUB(NOW() , INTERVAL ' . $cache_ttl . ')');
     }
     
     function register_cron() {
