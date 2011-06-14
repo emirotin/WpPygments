@@ -7,13 +7,13 @@ Author: <a href="http://blog.mirotin.net">Eugene Mirotin</a>
 Description: Colorizes code in WP posts with Pygments.
 */
 
-$SERVICE_URL = 'http://pygmentizer.appspot.com/';
+define("SERVICE_URL", 'http://pygmentizer.appspot.com/');
 
 require_once('php/phpQuery.php');
-require_once('php/http_request.php');
+require_once('php/request_http.php');
 
 function _callPygmentizeService($url, $code, $lang = '') {
-  $res = http_request($url, array('lang' => $lang, 'code' => $code), 'POST');
+  $res = request_http($url, array('lang' => $lang, 'code' => $code), 'POST');
   if ($res !== null && $res['status'] == '200')
     return $res['content'];
   return false;
@@ -50,14 +50,13 @@ if (!class_exists("WpPygments")) {
     }
 
     static function _getPygmentizedCode($el) {
-      global $SERVICE_URL;
       $el = pq($el);
       $lang = $el->attr('lang');
       if ($lang === null)
         $lang = '';
       
       $code = $el->text();
-      $res = _callPygmentizeService($SERVICE_URL, $code, $lang);
+      $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
       return array('res' => $res, 'lang' => $lang);      
     }
 
@@ -133,5 +132,4 @@ if (isset($wp_pygments)) {
   add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);
      
 }
-
 ?>

@@ -5,8 +5,8 @@
  * and http://nadeausoftware.com/articles/2007/07/php_tip_how_get_web_page_using_fopen_wrappers
  */
 
-function http_request($url, $params = null, $verb = 'GET')
-{
+function request_http($url, $params = null, $verb = 'GET')
+{  
   $cparams = array(
     'http' => array(
       'method' => $verb,
@@ -17,6 +17,7 @@ function http_request($url, $params = null, $verb = 'GET')
     $params = http_build_query($params);
     if ($verb == 'POST') {
       $cparams['http']['content'] = $params;
+      $cparams['http']['header'] = "Content-type: application/x-www-form-urlencoded\r\n";
     } else {
       $url .= '?' . $params;
     }
@@ -32,13 +33,14 @@ function http_request($url, $params = null, $verb = 'GET')
     $page = stream_get_contents($fp);
   }
   
-  if ( $page != false )
+  if ( $page !== false )
     $result['content'] = $page;
   else if ( !isset( $http_response_header ) )
     return null;    // Bad url, timeout
 
   // Save the header
   $result['header'] = $http_response_header;
+  echo $http_response_header;
 
   // Get the *last* HTTP status code
   $nLines = count( $http_response_header );
@@ -55,4 +57,3 @@ function http_request($url, $params = null, $verb = 'GET')
  
   return $result;
 }
-?>
