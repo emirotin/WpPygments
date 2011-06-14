@@ -7,7 +7,7 @@ Author: <a href="http://blog.mirotin.net">Eugene Mirotin</a>
 Description: Colorizes code in WP posts with Pygments.
 */
 
-$SERVICE_URL = "http://127.0.0.1:8000/pygmentize/";//'http://pygments.appspot.com/';//'
+$SERVICE_URL = 'http://pygmentizer.appspot.com/';
 
 require_once('php/phpQuery.php');
 
@@ -123,7 +123,7 @@ if (!class_exists("WpPygments")) {
     function processContent($content = '') {
       $dialog = '<div id="about-dialog">' .
         '<p>WpPygments is a Wordpress plugin that colorizes your code snippets using the web-service created around a popular Pygments library.</p>' .
-        '<p>Both service and plugin are developed by Eugene Mirotin. See <a href="http://google.com" target="_blank">here</a> how to add it to your blog.</p>' .
+        '<p>Both the service and the plugin are developed by Eugene Mirotin. See <a href="http://google.com" target="_blank">here</a> how to add it to your blog.</p>' .
       '</div>';
       
       $doc = phpQuery::newDocumentHTML($content);
