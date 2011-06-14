@@ -35,7 +35,7 @@ if (!class_exists("WpPygments")) {
       wp_enqueue_script('wppygments.zeroclipboard', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/ZeroClipboard.js', array(), '1.0.7');
       wp_enqueue_script('wppygments.printarea', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/jquery.PrintArea.js', array('jquery'), '1.0.7');
       wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
-        array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.3');
+        array('jquery', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.4');
     }
     
     function processHeader() {
@@ -54,6 +54,7 @@ if (!class_exists("WpPygments")) {
       $lang = $el->attr('lang');
       if ($lang === null)
         $lang = '';
+      $lang = str_replace('\"', '', $lang);
       
       $code = $el->text();
       $res = _callPygmentizeService(SERVICE_URL, $code, $lang);
@@ -98,7 +99,7 @@ if (!class_exists("WpPygments")) {
     }
 
     function preShowComment($comment = '') {
-      if(is_admin())
+      if (is_admin())
         return $comment;
       return $this->_processContent($comment, true);
     }
@@ -110,6 +111,44 @@ if (!class_exists("WpPygments")) {
     function preSaveComment($comment = '') {
       return $this->_processContent($comment, false);
     }
+
+    /**
+     * Based on http://www.coranac.com/2009/08/filter-juggling-and-comment-preview/
+     * Pre-encode HTML entities. Should come \e before wp_kses.
+     */
+    function filterDeEntity($content)
+    {
+        $content = preg_replace(
+            '#(<code.*?>)(.*?)(</code>)#msie',
+            '"\\1" . str_replace(
+                array("<", ">", "&"),
+                array("[|LT|]", "[|GT|]", "[|AMP|]"),
+                \'\\2\') . "\\3";',
+            $content);
+        $content = str_replace('\"', '"', $content);
+        
+        return $content;
+    }
+    /**
+     * Decode HTML entities. Should come \e after wp_kses.
+     */
+    function filterReEntity($content)
+    {
+        if(strstr($content, "[|"))
+        {
+            $content = preg_replace(
+                '#(<code.*?>)(.*?)(</code>)#msie',
+                '"\\1" . str_replace(
+                    array("[|LT|]", "[|GT|]", "[|AMP|]"),
+                    array("&lt;", "&gt;", "&amp;"),
+                    \'\\2\') . "\\3";',
+                $content);
+            $content = str_replace('\"', '"', $content);
+        }
+       
+        return $content;
+    }
+
 
   } //End Class WpPygments
 }
@@ -125,11 +164,13 @@ if (isset($wp_pygments)) {
   add_action('init',  array(&$wp_pygments, 'init'));
   
   //Filters
-  add_filter('content_filtered_save_pre', array(&$wp_pygments, 'preSaveContent'), 1); 
-  add_filter('pre_comment_content', array(&$wp_pygments, 'preSaveComment'), 1); 
+  add_filter('content_save_pre', array(&$wp_pygments, 'preSaveContent'), 1); 
+
+  add_filter('pre_comment_content', array(&$wp_pygments, 'filterDeEntity'), 1);
+  add_filter('pre_comment_content', array(&$wp_pygments, 'filterReEntity'), 49);
+  add_filter('pre_comment_content', array(&$wp_pygments, 'preSaveComment'), 50); 
     
   add_filter('the_content', array(&$wp_pygments, 'preShowContent'), 1); 
-  add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);
-     
+  add_filter('comment_text', array(&$wp_pygments, 'preShowComment'), 1);  
 }
 ?>

@@ -6,7 +6,7 @@
  */
 
 function request_http($url, $params = null, $verb = 'GET')
-{  
+{
   $cparams = array(
     'http' => array(
       'method' => $verb,
@@ -56,3 +56,4 @@ function request_http($url, $params = null, $verb = 'GET')
  
   return $result;
 }
+?>
