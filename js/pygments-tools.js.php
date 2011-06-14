@@ -13,15 +13,14 @@ var ZeroClipboard, jQuery;
 	  
     // toggle raw/ highlighted views	
 	  $('.highlighted').css('display', 'block');
-		$('.tools .show-raw, .tools .show-colored').click(function(){
+		$('.tools .show-raw, .tools .show-colored').click(function() {
 			var el = $(this),
 			    tools = el.parent().parent(),
 			    wrap = tools.parent();
 			wrap.children('.highlighted').slideToggle();
       wrap.children('.raw').slideToggle();
-			tools.children('.show-colored').toggle();
-      tools.children('.show-raw').toggle();
-			
+			tools.find('.show-colored').toggle();
+      tools.find('.show-raw').toggle();
 			return false;
 		});
     
@@ -29,25 +28,28 @@ var ZeroClipboard, jQuery;
     var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf",
         i = 0;
     ZeroClipboard.setMoviePath(zeroUrl);
-    $('.to-clipboard').each(function(){
+    $('.to-clipboard').each(function() {
       var el = $(this),
-          id = "WpPygments-to-clipboard-" + i,
-          parent_id = "WpPygments-toolswrap-" + i;
           code = el.parent().parent().parent().find('.raw code'),
           clip = new ZeroClipboard.Client();
-      el.attr("id", id);
-      el.parent().attr("id", parent_id);
+      el.data("clip", clip);
       i++;
       clip.setText('');
       clip.setHandCursor(true);
       clip.addEventListener('mouseDown', function(){
         clip.setText(code.text());
       });
-      clip.glue(id, parent_id);
+      clip.glue(this);
+    });
+    
+    $(window).resize(function() {
+      $('.to-clipboard').each(function() {
+        $(this).data("clip").reposition();
+      });
     });
     
 		// print
-    $('.print').click(function(){
+    $('.print').click(function() {
       var el = $(this),
           code = el.parent().parent().parent().find('.highlight');
 			code.printArea();
@@ -55,7 +57,7 @@ var ZeroClipboard, jQuery;
     });
 
     // about
-		$('.about').click(function(){
+		$('.about').click(function() {
 		  var dialog = $('#wppygments-about-dialog');
 		  if (!dialog.size()) {
         dialog = $('<div id="wppygments-about-dialog">' +

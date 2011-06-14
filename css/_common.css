@@ -53,3 +53,7 @@
 #about-dialog {
   display: none;
 }
+
+embed {
+  border: 1px solid red;
+}
