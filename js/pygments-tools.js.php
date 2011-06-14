@@ -39,12 +39,12 @@ var ZeroClipboard, jQuery;
       clip.addEventListener('mouseDown', function(){
         clip.setText(code.text());
       });
-      clip.glue(this);
+      clip.glue(this, this.parentNode);
     });
     
     $(window).resize(function() {
       $('.to-clipboard').each(function() {
-        $(this).data("clip").reposition();
+        $(this).data("clip").glue(this, this.parentNode);
       });
     });
     
