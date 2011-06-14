@@ -163,7 +163,7 @@ if (!class_exists("WpPygments")) {
           $options['pygments_toolbar_show_print'] === 'on';
         
         
-        $tools = '<div class="tools">';
+        $tools = '<div class="tools"><div class="wrap">';
         if ($show_raw) {
           $tools .= '<a href="#" class="show-raw">raw</a>' .
                     '<a href="#" class="show-colored">highlighted</a>';
@@ -175,6 +175,8 @@ if (!class_exists("WpPygments")) {
           $tools .= '<a href="#" class="print">print</a>';
         }
         $tools .= '<a href="#" class="about">?</a>'.
+          '<div class="clear"></div>' .
+          '</div>'.
           '<div class="clear"></div>' .
           '</div>';
         $wrap->prepend($tools);

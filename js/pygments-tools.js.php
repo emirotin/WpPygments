@@ -32,8 +32,8 @@ var ZeroClipboard, jQuery;
     $('.to-clipboard').each(function(){
       var el = $(this),
           id = "WpPygments-to-clipboard-" + i,
-          parent_id = "WpPygments-tools-" + i;
-          code = el.parent().parent().find('.raw code'),
+          parent_id = "WpPygments-toolswrap-" + i;
+          code = el.parent().parent().parent().find('.raw code'),
           clip = new ZeroClipboard.Client();
       el.attr("id", id);
       el.parent().attr("id", parent_id);
