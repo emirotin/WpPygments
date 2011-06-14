@@ -3,9 +3,13 @@ WpPygments is the plugin that utilizes Pygments library
 to highlight and colorize the code snippets in your WP blog.
 
 Plugin page: http://blog.mirotin.net/?page_id=49
+
 Plugin code: http://github.com/emirotin/WpPygments/
+
 Pygmentizer service: http://pygmentizer.appspot.com/
+
 Pygmentizer code: http://github.com/emirotin/pygmentizer/
+
 
 Download
 ========
@@ -18,8 +22,11 @@ As usual - unzip the archive to your plugins forlder, go to WP admin panel and a
 Configuration
 =============
 You can set several options: 
+
 - theme -- pick one of the existing Pygments themes
+
 - tools -- set which of the existing tools (view raw code, copy to clipboard, print) you need
+
 - cache clearing -- set how long code highlighting cache should be stored (since the last access time)
 
 Configuration is available as a separate WpPygments page under the Settings menu.
