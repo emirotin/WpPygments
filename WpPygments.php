@@ -85,8 +85,7 @@ if (!class_exists("WpPygments")) {
    
     
     function processHeader() {
-      $options = get_option('WpPygments_options');
-      
+      $options = get_option('WpPygments_options');      
       $style_name = isset($options['pygments_style']) ? $options['pygments_style'] : 'default';
 
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
@@ -130,13 +129,25 @@ if (!class_exists("WpPygments")) {
         $el->parent()->wrap('<div class="highlight-wrapper ' . $res['lang'] . '"></div>');
         $wrap = $el->parent()->parent();
         $el->parent()->addClass('raw');
-        $wrap->prepend('<div class="tools">' .
-          '<a href="#" class="show-raw">raw</a>' .
-          '<a href="#" class="show-colored">highlighted</a>'.
-          '<a href="#" class="to-clipboard">copy</a>'.
-          '<a href="#" class="print">print</a>'.
-          '<a href="#" class="about">?</a>'.
-        '</div>');
+        
+        $options = get_option('WpPygments_options');
+        $show_raw = !isset($options['pygments_toolbar_show_raw']) || $options['pygments_toolbar_show_raw'] === 'on';
+        $show_copy = !isset($options['pygments_toolbar_show_copy']) || $options['pygments_toolbar_show_copy'] === 'on';
+        $show_print = !isset($options['pygments_toolbar_show_print']) || $options['pygments_toolbar_show_print'] === 'on';
+        
+        
+        $tools = '<div class="tools">';
+        if ($show_raw)
+          $tools .= '<a href="#" class="show-raw">raw</a>' .
+                    '<a href="#" class="show-colored">highlighted</a>';
+        if ($show_copy)
+          $tools .= '<a href="#" class="to-clipboard">copy</a>';
+        if ($show_print)
+          $tools .= '<a href="#" class="print">print</a>';
+        $tools .= '<a href="#" class="about">?</a>'.
+          '</div>';
+        $wrap->prepend($tools);
+        
         $wrap->append('<div class="highlighted">' . $res['res'] . '</div>');
       }
     }
