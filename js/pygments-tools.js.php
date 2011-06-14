@@ -26,7 +26,7 @@ var ZeroClipboard, jQuery;
 		});
     
 		// clipboard
-    var zeroUrl = "ZeroClipboard10.swf",
+    var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf",
         i = 0;
     ZeroClipboard.setMoviePath(zeroUrl);
     $('.to-clipboard').each(function(){
