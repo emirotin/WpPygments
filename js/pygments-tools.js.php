@@ -47,7 +47,7 @@ if (!function_exists('add_action')) {
     })
 
     // about
-		var dialog = $("#about-dialog");
+		var dialog = $("#wppygments-about-dialog");
     dialog.dialog({ autoOpen: false, title: 'WpPygments by Eugene Mirotin' });
 		$('.about').click(function(){
 			dialog.dialog('open');
