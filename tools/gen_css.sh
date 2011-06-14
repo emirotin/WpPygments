@@ -8,5 +8,3 @@ for theme in 'monokai' 'manni' 'perldoc' 'borland' 'colorful' 'default' 'murphy'
 /opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/pygmentize -S $theme -a $WRAPPER -f html > $CSS_DIR/$theme.css;
 java -jar tools/yuicompressor.jar -o $CSS_DIR/$theme.css $CSS_DIR/$theme.css
 done;
-
-
