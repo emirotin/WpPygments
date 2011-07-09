@@ -8,7 +8,7 @@ var ZeroClipboard, jQuery;
 
 (function($) {
 	$(function(){
-    var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/WpPygments/js/ZeroClipboard10.swf";
+    var zeroUrl = "<?php bloginfo('wpurl') ?>/wp-content/plugins/<?php PLUGIN_DIR ?>/js/ZeroClipboard10.swf";
     ZeroClipboard.setMoviePath(zeroUrl);
 
     function create_clip(el, copy) {

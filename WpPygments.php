@@ -2,12 +2,13 @@
 /* 
 Plugin Name: WpPygments
 Plugin URI: http://blog.mirotin.net
-Version: 0.3  
+Version: 0.3.1
 Author: <a href="http://blog.mirotin.net">Eugene Mirotin</a> 
 Description: Colorizes code in WP posts with Pygments.
 */
 
 define("SERVICE_URL", 'http://pygmentizer.appspot.com/');
+define("PLUGIN_DIR", basename(dirname(__FILE__)));
 
 require_once('php/phpQuery.php');
 require_once('php/request_http.php');
@@ -78,20 +79,20 @@ if (!class_exists("WpPygments")) {
                                '2 days'      => '2 DAY',
                                '1 day'       => '1 DAY'
                               );
-    }
+    }    
     
     function init() {
       // serving required JS
       wp_enqueue_script('jquery');
       wp_enqueue_script('jquery-ui-dialog');
       wp_enqueue_script('wppygments.zeroclipboard', get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/js/ZeroClipboard.js', 
+        '/wp-content/plugins/' . PLUGIN_DIR . '/js/ZeroClipboard.js', 
         array(), '1.0.7');
       wp_enqueue_script('wppygments.printarea', get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/js/jquery.PrintArea.js', 
+        '/wp-content/plugins/' . PLUGIN_DIR . '/js/jquery.PrintArea.js', 
         array('jquery'), '1.0.7');
       wp_enqueue_script('wppygments.tools', get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/js/pygments-tools.js.php', 
+        '/wp-content/plugins/' . PLUGIN_DIR . '/js/pygments-tools.js.php', 
         array('jquery', 'jquery-ui-dialog', 'wppygments.zeroclipboard', 'wppygments.printarea'), '0.5');
     }
    
@@ -102,13 +103,13 @@ if (!class_exists("WpPygments")) {
       $style_name = isset($options['pygments_style']) ? $options['pygments_style'] : 'default';
       // jQuery UI
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/css/jquery-ui-1.8.8.custom.css" />' . "\n";
+        '/wp-content/plugins/' . PLUGIN_DIR . '/css/jquery-ui-1.8.8.custom.css" />' . "\n";
       // WpPygments common styles and style fixes
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/css/_common.css" />' . "\n";
+        '/wp-content/plugins/' . PLUGIN_DIR . '/css/_common.css" />' . "\n";
       // pygments chosen style
       echo '<link type="text/css" rel="stylesheet" href="' . get_bloginfo('wpurl') . 
-        '/wp-content/plugins/WpPygments/css/pygments/' . $style_name . '.css" />' . "\n";
+        '/wp-content/plugins/' . PLUGIN_DIR . '/css/pygments/' . $style_name . '.css" />' . "\n";
     }
 
     /*
