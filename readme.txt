@@ -2,8 +2,8 @@
 Contributors: emirotin
 Tags: pygments, code, colorization, highlight
 Requires at least: 3.0.1
-Tested up to: 3.1.3
-Stable tag: 0.3.1
+Tested up to: 3.2
+Stable tag: 0.3.2
 
 The plugin utilizes Pygments library to highlight and colorize the code snippets in your WP blog.
 

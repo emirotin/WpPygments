@@ -2,7 +2,7 @@
 /* 
 Plugin Name: WpPygments
 Plugin URI: http://blog.mirotin.net
-Version: 0.3.1
+Version: 0.3.2
 Author: <a href="http://blog.mirotin.net">Eugene Mirotin</a> 
 Description: Colorizes code in WP posts with Pygments.
 */
